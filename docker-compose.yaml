@@ -1,0 +1,49 @@
+version: '3.7'
+
+services:
+    nginx:
+        image: bootstrap/nginx:latest
+        build:
+            dockerfile: ./docker/prod/Dockerfile
+            context: .
+            target: nginx
+        ports:
+            - '8888:80'
+        networks:
+            - bootstrap_nw
+        depends_on:
+            - app
+        restart: always
+
+    app:
+        image: bootstrap/app:latest
+        build:
+            dockerfile: ./docker/prod/Dockerfile
+            context: .
+            target: app
+        env_file:
+            - .env.prod
+        networks:
+            - bootstrap_nw
+        depends_on:
+            - mysql
+        restart: always
+
+    mysql:
+        image: mysql:5.7
+        env_file:
+            - .env.prod
+        volumes:
+            - mysql:/var/lib/mysql
+        ports:
+            - '30000:3306'
+        networks:
+            - bootstrap_nw
+        restart: always
+
+
+volumes:
+    mysql:
+
+networks:
+    bootstrap_nw:
