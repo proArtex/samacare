@@ -5,19 +5,22 @@ security:
         users_in_db:
             entity:
                 class: 'App\Entity\User'
-                property: 'username'
+                property: 'token'
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
+        api:
+            anonymous: true
+            pattern: ^/api/
+            stateless: true
+            provider: users_in_db
+            guard:
+                authenticators:
+                    - App\Security\Authenticator\ApiTokenAuthenticator
         main:
             anonymous: lazy
             provider: users_in_memory
-        api:
-            stateless: true
-            http_basic:
-                realm: Secured Area
-            provider: users_in_db
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -29,4 +32,4 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+#         - { path: ^/api/, roles: ROLE_USER }
