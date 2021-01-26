@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Tweet;
-use App\Entity\TweetRely;
+use App\Entity\TweetReply;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -29,7 +29,7 @@ class TweetReplyController extends AbstractController
             throw $this->createNotFoundException('Tweet not found');
         }
 
-        $tweetReply = new TweetRely($data->message, $this->getUser());
+        $tweetReply = new TweetReply($data->message, $this->getUser());
         $tweet->addReply($tweetReply);
 
         $em = $this->getDoctrine()->getManager();

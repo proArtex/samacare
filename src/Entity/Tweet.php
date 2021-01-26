@@ -35,8 +35,8 @@ class Tweet
     private $author;
 
     /**
-     * @var Tweet[]
-     * @ORM\OneToMany(targetEntity="App\Entity\TweetRely", mappedBy="tweet", cascade={"persist"})
+     * @var ArrayCollection
+     * @ORM\ManyToMany(targetEntity="TweetReply", cascade={"persist"})
      * @ORM\JoinTable(name="tweet_replies",
      *      joinColumns={@ORM\JoinColumn(name="tweet_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="reply_id", referencedColumnName="id")}
@@ -73,7 +73,7 @@ class Tweet
         return $this->message;
     }
 
-    public function addReply(TweetRely $tweetReply): void
+    public function addReply(TweetReply $tweetReply): void
     {
         $this->replies->add($tweetReply);
     }

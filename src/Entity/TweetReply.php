@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  *     name="tweet_reply"
  * )
  */
-class TweetRely
+class TweetReply
 {
     /**
      * @var int|null
