@@ -13,7 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class TweetController extends AbstractController
 {
     /**
-     * @Route("/api/tweet", name="tweet.create", methods={"POST"})
+     * @Route("/api/tweets", name="tweet.create", methods={"POST"})
      * @IsGranted("ROLE_USER")
      */
     public function create(Request $request): Response
@@ -31,7 +31,7 @@ class TweetController extends AbstractController
     }
 
     /**
-     * @Route("/api/tweets", name="tweet.all", methods={"GET"})
+     * @Route("/api/tweets", name="tweet.list", methods={"GET"})
      */
     public function all(Request $request): Response
     {
