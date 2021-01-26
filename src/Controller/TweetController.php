@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Tweet;
+use App\Entity\TweetReply;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -33,7 +34,7 @@ class TweetController extends AbstractController
     /**
      * @Route("/api/tweets", name="tweet.list", methods={"GET"})
      */
-    public function all(Request $request): Response
+    public function list(Request $request): Response
     {
         $tweets = $this->getDoctrine()->getRepository(Tweet::class)->findAll();
 
@@ -42,12 +43,45 @@ class TweetController extends AbstractController
                 function (Tweet $tweet) {
                     return [
                         'id' => $tweet->getId(),
-                        'user' => $tweet->getAuthor()->getId(),
-                        'message' => $tweet->getMessage()
+                        'author_id' => $tweet->getAuthor()->getId(),
+                        'message' => $tweet->getMessage(),
+                        'timestamp' => $tweet->getTimestamp()
                     ];
                 },
                 $tweets
             )
+        );
+    }
+
+    /**
+     * @Route("/api/tweets/{id}", name="tweet.fetch", methods={"GET"}, requirements={"id": "\d+"})
+     */
+    public function fetch(int $id): Response
+    {
+        $tweet = $this->getDoctrine()->getRepository(Tweet::class)->find($id);
+
+        if (!$tweet) {
+            throw $this->createNotFoundException('Tweet not found');
+        }
+
+        return new JsonResponse(
+            [
+                'id' => $tweet->getId(),
+                'author_id' => $tweet->getAuthor()->getId(),
+                'message' => $tweet->getMessage(),
+                'timestamp' => $tweet->getTimestamp(),
+                'replies' => array_map(
+                    function (TweetReply $reply) {
+                        return [
+                            'id' => $reply->getId(),
+                            'message' => $reply->getMessage(),
+                            'author_id' => $reply->getAuthor()->getId(),
+                            'timestamp' => $reply->getTimestamp(),
+                        ];
+                    },
+                    $tweet->getReplies()
+                )
+            ]
         );
     }
 }

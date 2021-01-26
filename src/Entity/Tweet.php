@@ -73,6 +73,16 @@ class Tweet
         return $this->message;
     }
 
+    public function getReplies(): array
+    {
+        return $this->replies->toArray();
+    }
+
+    public function getTimestamp(): int
+    {
+        return $this->timestamp;
+    }
+
     public function addReply(TweetReply $tweetReply): void
     {
         $this->replies->add($tweetReply);

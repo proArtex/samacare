@@ -50,4 +50,19 @@ class TweetReply
     {
         return $this->id;
     }
+
+    public function getMessage(): string
+    {
+        return $this->message;
+    }
+
+    public function getAuthor(): User
+    {
+        return $this->author;
+    }
+
+    public function getTimestamp(): int
+    {
+        return $this->timestamp;
+    }
 }
