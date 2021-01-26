@@ -36,7 +36,11 @@ class TweetController extends AbstractController
      */
     public function list(Request $request): Response
     {
-        $tweets = $this->getDoctrine()->getRepository(Tweet::class)->findAll();
+        //TODO: data validation
+        $filter = $request->query->get('filter', []);
+
+
+        $tweets = $this->getDoctrine()->getRepository(Tweet::class)->findAllByFilter($filter);
 
         return new JsonResponse(
             array_map(
