@@ -15,7 +15,7 @@ class ApiExceptionEventSubscriber implements EventSubscriberInterface
     /**
      * @var string[]
      */
-    private $firewalls = ['api'];
+    private $firewalls;
 
     /**
      * @var FirewallMap
@@ -27,8 +27,9 @@ class ApiExceptionEventSubscriber implements EventSubscriberInterface
      */
     private $isDebugEnabled;
 
-    public function __construct(FirewallMap $firewallMap, bool $isDebugEnabled)
+    public function __construct(array $firewalls, FirewallMap $firewallMap, bool $isDebugEnabled)
     {
+        $this->firewalls = $firewalls;
         $this->firewallMap = $firewallMap;
         $this->isDebugEnabled = $isDebugEnabled;
     }

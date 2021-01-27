@@ -32,5 +32,6 @@ services:
 
     App\EventSubscriber\ApiExceptionEventSubscriber:
         arguments:
+            $firewalls: [ api ]
             $firewallMap: '@security.firewall.map'
             $isDebugEnabled: '%kernel.debug%'
