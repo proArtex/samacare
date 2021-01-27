@@ -59,3 +59,9 @@ curl --location -g --request GET 'http://127.0.0.1:8888/api/tweets?filter[start]
 curl --location --request GET 'http://127.0.0.1:8888/api/tweets/1' \
 --header 'Content-Type: application/json'
 ```
+
+* Follow a publisher
+```
+curl --location --request POST 'http://127.0.0.1:8888/api/authors/1/followers' \
+--header 'Authorization: Bearer sadasdGJHVhgcgfxnbKTY563'
+```
