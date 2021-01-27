@@ -32,7 +32,6 @@ class TweetReplyController extends AbstractController
         $tweet->addReply($tweetReply);
 
         $em = $this->getDoctrine()->getManager();
-        $em->persist($tweet);
         $em->flush();
 
         return new JsonResponse($tweetReply->getId(), Response::HTTP_CREATED);

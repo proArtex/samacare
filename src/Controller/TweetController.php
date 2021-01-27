@@ -9,6 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
 class TweetController extends AbstractController
@@ -39,8 +40,10 @@ class TweetController extends AbstractController
         //TODO: data validation
         $filter = $request->query->get('filter', []);
 
-
-        $tweets = $this->getDoctrine()->getRepository(Tweet::class)->findAllByFilter($filter);
+        $tweets = $this
+            ->getDoctrine()
+            ->getRepository(Tweet::class)
+            ->findAllByFilterForUser($filter, $this->getUser());
 
         return new JsonResponse(
             array_map(
@@ -62,7 +65,10 @@ class TweetController extends AbstractController
      */
     public function fetch(int $id): Response
     {
-        $tweet = $this->getDoctrine()->getRepository(Tweet::class)->find($id);
+        $tweet = $this
+            ->getDoctrine()
+            ->getRepository(Tweet::class)
+            ->findForUser($id, $this->getUser());
 
         if (!$tweet) {
             throw $this->createNotFoundException('Tweet not found');
@@ -87,5 +93,41 @@ class TweetController extends AbstractController
                 )
             ]
         );
+    }
+
+    /**
+     * @Route(
+     *     "/api/tweets/{id}",
+     *     name="tweet.patch",
+     *     methods={"PATCH"},
+     *     requirements={"id": "\d+"}
+     * )
+     * @IsGranted("ROLE_USER")
+     */
+    public function patch(Request $request, int $id): Response
+    {
+        $tweet = $this->getDoctrine()->getRepository(Tweet::class)->find($id);
+
+        if (!$tweet) {
+            throw $this->createNotFoundException('Tweet not found');
+        }
+
+        if ($tweet->getAuthor()->getId() !== $this->getUser()->getId()) {
+            throw new AccessDeniedHttpException("You cannot modify someone's tweet");
+        }
+
+        //TODO: data validation
+        $data = json_decode($request->getContent());
+        $isPrivate = $data->isPrivate;
+
+        if ($isPrivate) {
+            $tweet->makePrivate();
+        } else {
+            $tweet->makePublic();
+        }
+
+        $this->getDoctrine()->getManager()->flush();
+
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

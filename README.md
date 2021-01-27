@@ -35,6 +35,16 @@ curl --location --request POST 'http://127.0.0.1:8888/api/tweets/1/reply' \
 }'
 ```
 
+* Mark some of their tweets as private, except to their followers
+```
+curl --location --request PATCH 'http://127.0.0.1:8888/api/tweets/1' \
+--header 'Authorization: Bearer sadasdGJHVhgcgfxnbKTY562' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "isPrivate": true
+}'
+```
+
 ## Reader's endpoints
 * Query all tweets in the system
 ```

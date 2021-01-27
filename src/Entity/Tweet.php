@@ -45,6 +45,12 @@ class Tweet
     private $replies;
 
     /**
+     * @var bool
+     * @ORM\Column(type="boolean")
+     */
+    private $isPrivate;
+
+    /**
      * @var int
      * @ORM\Column(type="integer")
      */
@@ -55,7 +61,18 @@ class Tweet
         $this->message = $message;
         $this->author = $author;
         $this->timestamp = time();
-        $this->replies =  new ArrayCollection();
+        $this->replies = new ArrayCollection();
+        $this->isPrivate = false;
+    }
+
+    public function makePrivate(): void
+    {
+        $this->isPrivate = true;
+    }
+
+    public function makePublic(): void
+    {
+        $this->isPrivate = false;
     }
 
     public function getId()

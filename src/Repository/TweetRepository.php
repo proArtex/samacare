@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Tweet;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 class TweetRepository extends ServiceEntityRepository
@@ -13,7 +15,7 @@ class TweetRepository extends ServiceEntityRepository
         parent::__construct($registry, Tweet::class);
     }
 
-    public function findAllByFilter(array $filter): array
+    public function findAllByFilterForUser(array $filter, ?User $user): array
     {
         $startTime = $filter['start'] ?? null;
         $endTime = $filter['end'] ?? null;
@@ -37,10 +39,44 @@ class TweetRepository extends ServiceEntityRepository
 
         if ($authorIds) {
             $qb
-            ->andWhere('t.author IN (:author_ids)')
-            ->setParameter('author_ids', $authorIds);
+                ->andWhere('t.author IN (:author_ids)')
+                ->setParameter('author_ids', $authorIds);
         }
 
+        $this->filterPrivateTweets($qb, $user);
+
         return $qb->getQuery()->getResult();
+    }
+
+    public function findForUser(int $id, ?User $user): ?Tweet
+    {
+        $qb = $this->createQueryBuilder('t');
+
+        $qb
+            ->andWhere('t.id = :id')
+            ->setParameter('id', $id);
+
+        $this->filterPrivateTweets($qb, $user);
+
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    private function filterPrivateTweets(QueryBuilder $qb, ?User $user): void
+    {
+        $orX = $qb->expr()->orX();
+        $orX->add($qb->expr()->eq('t.isPrivate', ':is_private'));
+        $qb->setParameter('is_private', false);
+
+        if ($user) {
+            $orX->add($qb->expr()->eq('t.author', ':author_id'));
+            $orX->add($qb->expr()->isMemberOf(':follower_id', 'a.followers'));
+
+            $qb
+                ->join('t.author', 'a')
+                ->setParameter('author_id', $user->getId())
+                ->setParameter('follower_id', $user->getId());
+        }
+
+        $qb->andWhere($orX);
     }
 }
