@@ -35,7 +35,7 @@ class Tweet
     private $author;
 
     /**
-     * @var ArrayCollection
+     * @var ArrayCollection<TweetReply>
      * @ORM\ManyToMany(targetEntity="TweetReply", cascade={"persist"})
      * @ORM\JoinTable(name="tweet_replies",
      *      joinColumns={@ORM\JoinColumn(name="tweet_id", referencedColumnName="id")},

@@ -58,7 +58,7 @@ class TweetController extends AbstractController
                 function (Tweet $tweet) {
                     return [
                         'id' => $tweet->getId(),
-                        'author_id' => $tweet->getAuthor()->getId(),
+                        'authorId' => $tweet->getAuthor()->getId(),
                         'message' => $tweet->getMessage(),
                         'timestamp' => $tweet->getTimestamp()
                     ];
@@ -90,7 +90,7 @@ class TweetController extends AbstractController
         return new JsonResponse(
             [
                 'id' => $tweet->getId(),
-                'author_id' => $tweet->getAuthor()->getId(),
+                'authorId' => $tweet->getAuthor()->getId(),
                 'message' => $tweet->getMessage(),
                 'timestamp' => $tweet->getTimestamp(),
                 'replies' => array_map(
@@ -98,7 +98,7 @@ class TweetController extends AbstractController
                         return [
                             'id' => $reply->getId(),
                             'message' => $reply->getMessage(),
-                            'author_id' => $reply->getAuthor()->getId(),
+                            'authorId' => $reply->getAuthor()->getId(),
                             'timestamp' => $reply->getTimestamp(),
                         ];
                     },

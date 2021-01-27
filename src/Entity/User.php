@@ -52,13 +52,7 @@ class User implements UserInterface
 
     /**
      * @var ArrayCollection<User>
-     * @ORM\ManyToMany(targetEntity="User", mappedBy="followers")
-     */
-    private $follows;
-
-    /**
-     * @var ArrayCollection<User>
-     * @ORM\ManyToMany(targetEntity="User", inversedBy="follows")
+     * @ORM\ManyToMany(targetEntity="User")
      * @ORM\JoinTable(name="followers",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
      *      inverseJoinColumns={@ORM\JoinColumn(name="follower_user_id", referencedColumnName="id")}
@@ -87,7 +81,6 @@ class User implements UserInterface
         $this->roles = [self::ROLE_DEFAULT];
         $this->username = $username;
         $this->token = $token;
-        $this->follows = new ArrayCollection();
         $this->followers = new ArrayCollection();
         $this->blockedFollowers = new ArrayCollection();
         $this->registeredAt = new DateTimeImmutable('now');
@@ -95,21 +88,19 @@ class User implements UserInterface
 
     public function follow(User $user): void
     {
-        if ($this->follows->contains($user)) {
+        if ($user->followers->contains($this)) {
             throw new UserException('A user have already been following the author');
         }
 
-        $this->follows->add($user);
         $user->followers->add($this);
     }
 
     public function unfollow(User $user): void
     {
-        if (!$this->follows->contains($user)) {
+        if (!$user->followers->contains($this)) {
             throw new UserException("A user haven't been following the author yet");
         }
 
-        $this->follows->removeElement($user);
         $user->followers->removeElement($this);
     }
 
