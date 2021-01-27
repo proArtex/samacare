@@ -1,0 +1,40 @@
+Welcome to the SamaCare take home project.
+
+Requirements
+The code runs on a web server that I can run locally + access using curl
+There is a brief README to guide me through the setup process + how to call your endpoints
+Note - the following are behavioral specs. This means you’ll need to take charge of the implementation details and edge cases. For example, one of our specs is allowing publishers to reply to existing tweets, an edge case to address is how to handle it when the API is supplied with an invalid Tweet ID
+
+Step 1
+You’re making a new Twitter platform for recently banned users. During your first step, you’ll need to build some of the basic mechanisms. To start, we’ll want to build an API for these users for two different use cases: reading and publishing
+
+A publishing user should be able to
+Write new tweets
+Reply to existing tweets
+
+A reader user, in a single API call, should be able to
+Query all tweets in the system
+Query all tweets by a group of publishers
+Query all tweets in a specific window of time
+Query a tweet and all the responses to this tweet
+
+At a minimum, tweets should have
+An ID or UUID
+A message (maximum 140 characters)
+An author (referring to a user in the user table or collection)
+A timestamp
+
+You’ll want to have database entities for users as well
+
+Step 2
+Congratulations! You’ve launched at Virtual South by Southwest 2021, and your users love you, but they’re also demanding more features, specifically privacy features
+
+A publishing user now wants
+To mark some of their tweets as private, except to their followers
+To remove followers
+
+A reader should now be able to
+Follow a publisher
+Note - they should not be able to re-follow a publisher once removed
+
+Congrats - you’re now the largest social media platform on Market Street in San Francisco
