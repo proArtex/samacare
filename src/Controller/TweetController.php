@@ -15,7 +15,11 @@ use Symfony\Component\Routing\Annotation\Route;
 class TweetController extends AbstractController
 {
     /**
-     * @Route("/api/tweets", name="tweet.create", methods={"POST"})
+     * @Route(
+     *     "/api/tweets",
+     *     name="tweet.create",
+     *     methods={"POST"}
+     * )
      * @IsGranted("ROLE_USER")
      */
     public function create(Request $request): Response
@@ -33,7 +37,11 @@ class TweetController extends AbstractController
     }
 
     /**
-     * @Route("/api/tweets", name="tweet.list", methods={"GET"})
+     * @Route(
+     *     "/api/tweets",
+     *     name="tweet.list",
+     *     methods={"GET"}
+     * )
      */
     public function list(Request $request): Response
     {
@@ -61,14 +69,19 @@ class TweetController extends AbstractController
     }
 
     /**
-     * @Route("/api/tweets/{id}", name="tweet.fetch", methods={"GET"}, requirements={"id": "\d+"})
+     * @Route(
+     *     "/api/tweets/{tweetId}",
+     *     name="tweet.fetch",
+     *     methods={"GET"},
+     *     requirements={"tweetId": "\d+"}
+     * )
      */
-    public function fetch(int $id): Response
+    public function fetch(int $tweetId): Response
     {
         $tweet = $this
             ->getDoctrine()
             ->getRepository(Tweet::class)
-            ->findForUser($id, $this->getUser());
+            ->findForUser($tweetId, $this->getUser());
 
         if (!$tweet) {
             throw $this->createNotFoundException('Tweet not found');
@@ -97,16 +110,16 @@ class TweetController extends AbstractController
 
     /**
      * @Route(
-     *     "/api/tweets/{id}",
+     *     "/api/tweets/{tweetId}",
      *     name="tweet.patch",
      *     methods={"PATCH"},
-     *     requirements={"id": "\d+"}
+     *     requirements={"tweetId": "\d+"}
      * )
      * @IsGranted("ROLE_USER")
      */
-    public function patch(Request $request, int $id): Response
+    public function patch(Request $request, int $tweetId): Response
     {
-        $tweet = $this->getDoctrine()->getRepository(Tweet::class)->find($id);
+        $tweet = $this->getDoctrine()->getRepository(Tweet::class)->find($tweetId);
 
         if (!$tweet) {
             throw $this->createNotFoundException('Tweet not found');

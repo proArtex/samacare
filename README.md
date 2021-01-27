@@ -6,9 +6,9 @@
 # Authorization
 Use Bearer token authorization with one onf the following predefined values (users)
 
-* user 1: `sadasdGJHVhgcgfxnbKTY561`
-* user 2: `sadasdGJHVhgcgfxnbKTY562`
-* user 3: `sadasdGJHVhgcgfxnbKTY563`
+* user 1: `Random_Token_For_User_01`
+* user 2: `Random_Token_For_User_02`
+* user 3: `Random_Token_For_User_03`
 
 # Endpoints
 Go to `http://127.0.0.1:8888/` to check if it works (make sure it is http, not https).  
@@ -18,7 +18,7 @@ Run `docker-compose exec app bin/console debug:route` to get the list of endpoin
 * Write new tweets
 ```
 curl --location --request POST 'http://127.0.0.1:8888/api/tweets' \
---header 'Authorization: Bearer sadasdGJHVhgcgfxnbKTY561' \
+--header 'Authorization: Bearer Random_Token_For_User_01' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "message": "message goes here"
@@ -28,7 +28,7 @@ curl --location --request POST 'http://127.0.0.1:8888/api/tweets' \
 * Reply to existing tweets
 ```
 curl --location --request POST 'http://127.0.0.1:8888/api/tweets/1/reply' \
---header 'Authorization: Bearer sadasdGJHVhgcgfxnbKTY562' \
+--header 'Authorization: Bearer Random_Token_For_User_02' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "message": "reply goes here"
@@ -38,7 +38,7 @@ curl --location --request POST 'http://127.0.0.1:8888/api/tweets/1/reply' \
 * Mark some of their tweets as private, except to their followers
 ```
 curl --location --request PATCH 'http://127.0.0.1:8888/api/tweets/1' \
---header 'Authorization: Bearer sadasdGJHVhgcgfxnbKTY561' \
+--header 'Authorization: Bearer Random_Token_For_User_01' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "isPrivate": true
@@ -48,7 +48,7 @@ curl --location --request PATCH 'http://127.0.0.1:8888/api/tweets/1' \
 * Remove followers so that they should not be able to re-follow a publisher once removed
 ```
 curl --location --request DELETE 'http://127.0.0.1:8888/api/self/followers/2' \
---header 'Authorization: Bearer sadasdGJHVhgcgfxnbKTY561' \
+--header 'Authorization: Bearer Random_Token_For_User_01' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "isPrivate": true
@@ -83,5 +83,5 @@ curl --location --request GET 'http://127.0.0.1:8888/api/tweets/1' \
 * Follow a publisher
 ```
 curl --location --request POST 'http://127.0.0.1:8888/api/authors/1/followers' \
---header 'Authorization: Bearer sadasdGJHVhgcgfxnbKTY563'
+--header 'Authorization: Bearer Random_Token_For_User_03'
 ```
