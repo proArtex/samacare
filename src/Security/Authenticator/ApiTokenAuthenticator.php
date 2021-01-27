@@ -27,7 +27,7 @@ class ApiTokenAuthenticator extends AbstractGuardAuthenticator
     {
         $authToken = $request->headers->get('Authorization');
 
-        if (!preg_match('@^Bearer ([a-zA-Z0-9]+)$@', $authToken, $matches)) {
+        if (!preg_match('@^Bearer ([a-zA-Z0-9_]+)$@', $authToken, $matches)) {
             throw new AuthenticationException("Token is invalid");
         }
 
