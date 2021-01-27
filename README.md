@@ -27,11 +27,10 @@ curl --location --request POST 'http://127.0.0.1:8888/api/tweets' \
 
 * Reply to existing tweets
 ```
-curl --location --request POST 'http://127.0.0.1:8888/api/tweet-replies' \
+curl --location --request POST 'http://127.0.0.1:8888/api/tweets/1/reply' \
 --header 'Authorization: Bearer sadasdGJHVhgcgfxnbKTY562' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "tweetId": 1,
     "message": "reply goes here"
 }'
 ```

@@ -14,14 +14,13 @@ use Symfony\Component\Routing\Annotation\Route;
 class TweetReplyController extends AbstractController
 {
     /**
-     * @Route("/api/tweet-replies", name="tweet_reply.create", methods={"POST"})
+     * @Route("/api/tweets/{tweetId}/replies", name="tweet_reply.create", methods={"POST"}, requirements={"tweetId": "\d+"})
      * @IsGranted("ROLE_USER")
      */
-    public function create(Request $request): Response
+    public function create(Request $request, int $tweetId): Response
     {
         //TODO: data validation
         $data = json_decode($request->getContent());
-        $tweetId = $data->tweetId;
 
         $tweet = $this->getDoctrine()->getRepository(Tweet::class)->find($tweetId);
 
