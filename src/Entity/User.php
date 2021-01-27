@@ -51,12 +51,13 @@ class User implements UserInterface
     private $roles;
 
     /**
-     * Many Users have Many Users.
+     * @var ArrayCollection<User>
      * @ORM\ManyToMany(targetEntity="User", mappedBy="followers")
      */
     private $follows;
 
     /**
+     * @var ArrayCollection<User>
      * @ORM\ManyToMany(targetEntity="User", inversedBy="follows")
      * @ORM\JoinTable(name="followers",
      *      joinColumns={@ORM\JoinColumn(name="user_id", referencedColumnName="id")},
@@ -64,6 +65,16 @@ class User implements UserInterface
      * )
      */
     private $followers;
+
+    /**
+     * @var ArrayCollection<User>
+     * @ORM\ManyToMany(targetEntity="User")
+     * @ORM\JoinTable(name="blocked_followers",
+     *      joinColumns={@ORM\JoinColumn(name="author_id", referencedColumnName="id")},
+     *      inverseJoinColumns={@ORM\JoinColumn(name="blocked_follower_id", referencedColumnName="id")}
+     * )
+     */
+    private $blockedFollowers;
 
     /**
      * @var DateTimeInterface
@@ -78,17 +89,42 @@ class User implements UserInterface
         $this->token = $token;
         $this->follows = new ArrayCollection();
         $this->followers = new ArrayCollection();
-        $this->registeredAt =  new DateTimeImmutable('now');
+        $this->blockedFollowers = new ArrayCollection();
+        $this->registeredAt = new DateTimeImmutable('now');
     }
 
     public function follow(User $user): void
     {
         if ($this->follows->contains($user)) {
-            throw new UserException('You have already been following this author');
+            throw new UserException('A user have already been following the author');
         }
 
         $this->follows->add($user);
         $user->followers->add($this);
+    }
+
+    public function unfollow(User $user): void
+    {
+        if (!$this->follows->contains($user)) {
+            throw new UserException("A user haven't been following the author yet");
+        }
+
+        $this->follows->removeElement($user);
+        $user->followers->removeElement($this);
+    }
+
+    public function blockFollower(User $user): void
+    {
+        if ($this->blockedFollowers->contains($user)) {
+            throw new UserException("A user has already been blocked");
+        }
+
+        $this->blockedFollowers->add($user);
+    }
+
+    public function hasBlocked(User $user): bool
+    {
+        return $this->blockedFollowers->contains($user);
     }
 
     public function getId()
