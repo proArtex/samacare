@@ -117,7 +117,7 @@ class User implements UserInterface
             throw new UserException("A user haven't been following the author yet");
         }
 
-        $user->followers->removeElement($this);
+        $this->followers->removeElement($user);
         $this->blockedFollowers->add($user);
     }
 
