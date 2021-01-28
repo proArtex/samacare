@@ -88,34 +88,37 @@ class User implements UserInterface
 
     public function follow(User $user): void
     {
+        if ($this->getId() === $user->getId()) {
+            throw new UserException('You cannot follow yourself');
+        }
+
         if ($user->followers->contains($this)) {
             throw new UserException('A user have already been following the author');
+        }
+
+        if ($user->blockedFollowers->contains($this)) {
+            throw new UserException('You have been blocked by the author and cannot follow anymore');
         }
 
         $user->followers->add($this);
     }
 
-    public function unfollow(User $user): void
-    {
-        if (!$user->followers->contains($this)) {
-            throw new UserException("A user haven't been following the author yet");
-        }
-
-        $user->followers->removeElement($this);
-    }
-
     public function blockFollower(User $user): void
     {
+        if ($this->getId() === $user->getId()) {
+            throw new UserException('You cannot remove yourself from your followers');
+        }
+
         if ($this->blockedFollowers->contains($user)) {
             throw new UserException("A user has already been blocked");
         }
 
-        $this->blockedFollowers->add($user);
-    }
+        if (!$this->followers->contains($user)) {
+            throw new UserException("A user haven't been following the author yet");
+        }
 
-    public function hasBlocked(User $user): bool
-    {
-        return $this->blockedFollowers->contains($user);
+        $user->followers->removeElement($this);
+        $this->blockedFollowers->add($user);
     }
 
     public function getId()

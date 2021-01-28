@@ -33,16 +33,6 @@ class UserController extends AbstractController
             throw $this->createNotFoundException('Author not found');
         }
 
-        if ($author->getId() === $currentUser->getId()) {
-            throw new UnprocessableEntityHttpException('You cannot follow yourself');
-        }
-
-        if ($author->hasBlocked($currentUser)) {
-            throw new UnprocessableEntityHttpException(
-                'You have been blocked by the author and cannot follow anymore'
-            );
-        }
-
         try {
             $currentUser->follow($author);
             $this->getDoctrine()->getManager()->flush();
@@ -71,12 +61,7 @@ class UserController extends AbstractController
             throw $this->createNotFoundException('Follower not found');
         }
 
-        if ($follower->getId() === $currentUser->getId()) {
-            throw new UnprocessableEntityHttpException('You cannot remove yourself from your followers');
-        }
-
         try {
-            $follower->unfollow($currentUser);
             $currentUser->blockFollower($follower);
             $this->getDoctrine()->getManager()->flush();
         } catch (UserException $e) {

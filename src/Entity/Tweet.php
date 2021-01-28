@@ -102,6 +102,7 @@ class Tweet
 
     public function addReply(TweetReply $tweetReply): void
     {
+        //TODO: can an author reply to himself?
         $this->replies->add($tweetReply);
     }
 }
