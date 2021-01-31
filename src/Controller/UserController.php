@@ -6,14 +6,14 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Exception\UserException;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
-class UserController extends AbstractController
+class UserController extends AbstractFOSRestController
 {
     /**
      * @Route(
@@ -24,7 +24,7 @@ class UserController extends AbstractController
      * )
      * @IsGranted("ROLE_USER")
      */
-    public function createFollower(int $authorId): Response
+    public function createFollower(int $authorId): View
     {
         $currentUser = $this->getUser();
         $author = $this->getDoctrine()->getRepository(User::class)->find($authorId);
@@ -40,7 +40,7 @@ class UserController extends AbstractController
             throw new UnprocessableEntityHttpException($e->getMessage(), $e);
         }
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 
     /**
@@ -52,7 +52,7 @@ class UserController extends AbstractController
      * )
      * @IsGranted("ROLE_USER")
      */
-    public function removeFollower(int $followerId): Response
+    public function removeFollower(int $followerId): View
     {
         $currentUser = $this->getUser();
         $follower = $this->getDoctrine()->getRepository(User::class)->find($followerId);
@@ -68,6 +68,6 @@ class UserController extends AbstractController
             throw new UnprocessableEntityHttpException($e->getMessage(), $e);
         }
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 }

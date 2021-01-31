@@ -2,16 +2,20 @@
 
 namespace App\Controller;
 
+use App\DTO\TweetReplyDTO;
 use App\Entity\Tweet;
 use App\Entity\TweetReply;
+use App\Exception\TweetReplyException;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
-class TweetReplyController extends AbstractController
+class TweetReplyController extends AbstractFOSRestController
 {
     /**
      * @Route(
@@ -20,12 +24,21 @@ class TweetReplyController extends AbstractController
      *     methods={"POST"},
      *     requirements={"tweetId": "\d+"}
      * )
+     * @ParamConverter(
+     *     "tweetReplyDTO",
+     *     converter="fos_rest.request_body",
+     *     options={"validator"={"groups"={"create"}}}
+     * )
      * @IsGranted("ROLE_USER")
      */
-    public function create(Request $request, int $tweetId): Response
-    {
-        //TODO: data validation
-        $data = json_decode($request->getContent());
+    public function create(
+        int $tweetId,
+        TweetReplyDTO $tweetReplyDTO,
+        ConstraintViolationListInterface $validationErrors
+    ): View {
+        if (count($validationErrors)) {
+            return $this->view($validationErrors, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         $tweet = $this->getDoctrine()->getRepository(Tweet::class)->find($tweetId);
 
@@ -33,12 +46,16 @@ class TweetReplyController extends AbstractController
             throw $this->createNotFoundException('Tweet not found');
         }
 
-        $tweetReply = new TweetReply($data->message, $this->getUser());
-        $tweet->addReply($tweetReply);
+        try {
+            $tweetReply = new TweetReply($tweetReplyDTO->message, $this->getUser());
+            $tweet->addReply($tweetReply);
+        } catch (TweetReplyException $e) {
+            throw new UnprocessableEntityHttpException($e->getMessage());
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->flush();
 
-        return new JsonResponse($tweetReply->getId(), Response::HTTP_CREATED);
+        return $this->view($tweetReply->getId(), Response::HTTP_CREATED);
     }
 }

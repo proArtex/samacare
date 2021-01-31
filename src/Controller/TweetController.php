@@ -2,17 +2,22 @@
 
 namespace App\Controller;
 
+use App\DTO\TweetDTO;
 use App\Entity\Tweet;
 use App\Entity\TweetReply;
+use App\Exception\TweetException;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use FOS\RestBundle\View\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
 
-class TweetController extends AbstractController
+class TweetController extends AbstractFOSRestController
 {
     /**
      * @Route(
@@ -20,20 +25,30 @@ class TweetController extends AbstractController
      *     name="tweet.create",
      *     methods={"POST"}
      * )
+     * @ParamConverter(
+     *     "tweetDTO",
+     *     converter="fos_rest.request_body",
+     *     options={"validator"={"groups"={"create"}}}
+     * )
      * @IsGranted("ROLE_USER")
      */
-    public function create(Request $request): Response
+    public function create(TweetDTO $tweetDTO, ConstraintViolationListInterface $validationErrors): View
     {
-        //TODO: data validation
-        $data = json_decode($request->getContent());
+        if (count($validationErrors)) {
+            return $this->view($validationErrors, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
-        $tweet = new Tweet($data->message, $this->getUser());
+        try {
+            $tweet = new Tweet($tweetDTO->message, $this->getUser());
+        } catch (TweetException $e) {
+            throw new UnprocessableEntityHttpException($e->getMessage());
+        }
 
         $em = $this->getDoctrine()->getManager();
         $em->persist($tweet);
         $em->flush();
 
-        return new JsonResponse($tweet->getId(), Response::HTTP_CREATED);
+        return $this->view($tweet->getId(), Response::HTTP_CREATED);
     }
 
     /**
@@ -43,9 +58,9 @@ class TweetController extends AbstractController
      *     methods={"GET"}
      * )
      */
-    public function list(Request $request): Response
+    public function list(Request $request): View
     {
-        //TODO: data validation
+        //TODO: validation
         $filter = $request->query->get('filter', []);
 
         $tweets = $this
@@ -53,7 +68,7 @@ class TweetController extends AbstractController
             ->getRepository(Tweet::class)
             ->findAllByFilterForUser($filter, $this->getUser());
 
-        return new JsonResponse(
+        return $this->view(
             array_map(
                 function (Tweet $tweet) {
                     return [
@@ -76,7 +91,7 @@ class TweetController extends AbstractController
      *     requirements={"tweetId": "\d+"}
      * )
      */
-    public function fetch(int $tweetId): Response
+    public function fetch(int $tweetId): View
     {
         $tweet = $this
             ->getDoctrine()
@@ -87,7 +102,7 @@ class TweetController extends AbstractController
             throw $this->createNotFoundException('Tweet not found');
         }
 
-        return new JsonResponse(
+        return $this->view(
             [
                 'id' => $tweet->getId(),
                 'authorId' => $tweet->getAuthor()->getId(),
@@ -115,10 +130,18 @@ class TweetController extends AbstractController
      *     methods={"PATCH"},
      *     requirements={"tweetId": "\d+"}
      * )
+     * @ParamConverter(
+     *     "tweetDTO",
+     *     converter="fos_rest.request_body",
+     *     options={"validator"={"groups"={"patch"}}}
+     * )
      * @IsGranted("ROLE_USER")
      */
-    public function patch(Request $request, int $tweetId): Response
-    {
+    public function patch(
+        int $tweetId,
+        TweetDTO $tweetDTO,
+        ConstraintViolationListInterface $validationErrors
+    ): View {
         $tweet = $this->getDoctrine()->getRepository(Tweet::class)->find($tweetId);
 
         if (!$tweet) {
@@ -129,11 +152,11 @@ class TweetController extends AbstractController
             throw new AccessDeniedHttpException("You cannot modify someone's tweet");
         }
 
-        //TODO: data validation
-        $data = json_decode($request->getContent());
-        $isPrivate = $data->isPrivate;
+        if (count($validationErrors)) {
+            return $this->view($validationErrors, Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
-        if ($isPrivate) {
+        if ($tweetDTO->isPrivate) {
             $tweet->makePrivate();
         } else {
             $tweet->makePublic();
@@ -141,6 +164,6 @@ class TweetController extends AbstractController
 
         $this->getDoctrine()->getManager()->flush();
 
-        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
+        return $this->view(null, Response::HTTP_NO_CONTENT);
     }
 }

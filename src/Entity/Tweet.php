@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Exception\TweetException;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -13,6 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Tweet
 {
+    private const MAX_LENGTH = 140;
+
     /**
      * @var int|null
      * @ORM\Id()
@@ -58,6 +61,10 @@ class Tweet
 
     public function __construct(string $message, User $author)
     {
+        if (mb_strlen($message) > self::MAX_LENGTH) {
+            throw new TweetException("A tweet's message must not be longer than " . self::MAX_LENGTH . ' symbols');
+        }
+
         $this->message = $message;
         $this->author = $author;
         $this->timestamp = time();

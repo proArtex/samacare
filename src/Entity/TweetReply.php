@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Exception\TweetReplyException;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -12,6 +13,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class TweetReply
 {
+    private const MAX_LENGTH = 140;
+
     /**
      * @var int|null
      * @ORM\Id()
@@ -41,6 +44,10 @@ class TweetReply
 
     public function __construct(string $message, User $author)
     {
+        if (mb_strlen($message) > self::MAX_LENGTH) {
+            throw new TweetReplyException("A tweet reply's message must not be longer than " . self::MAX_LENGTH . ' symbols');
+        }
+
         $this->message = $message;
         $this->author = $author;
         $this->timestamp = time();
